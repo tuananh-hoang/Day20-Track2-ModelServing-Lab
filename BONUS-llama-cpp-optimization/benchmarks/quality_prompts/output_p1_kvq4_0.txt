@@ -1,0 +1,20 @@
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes, VRAM: 6143 MiB
+
+
+
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+
+
+
+Text: "The MacBook Pro costs 1999 USD in the Apple store."
+Respond ONLY with a valid JSON object. No explanation. [/INST]
+
+{
+  "product": "MacBook Pro",
+  "price": 1999,
+  "currency": "USD"
+}
+
+Exiting...

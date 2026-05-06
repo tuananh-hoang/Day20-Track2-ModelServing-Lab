@@ -1,0 +1,8 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 6143 MiB):
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes, VRAM: 6143 MiB
+| model                          |       size |     params | backend    | ngl | type_k | type_v | fa |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -----: | -----: | -: | --------------: | -------------------: |
+| llama 7B Q4_K - Medium         |   4.07 GiB |     7.24 B | CUDA       |  99 |   q4_0 |   q4_0 |  1 |           pp512 |       628.39 ± 38.69 |
+| llama 7B Q4_K - Medium         |   4.07 GiB |     7.24 B | CUDA       |  99 |   q4_0 |   q4_0 |  1 |           tg256 |         12.06 ± 0.89 |
+
+build: bbeb89d76 (9037)

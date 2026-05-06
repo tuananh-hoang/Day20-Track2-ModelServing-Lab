@@ -1,0 +1,20 @@
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes, VRAM: 6143 MiB
+
+
+
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+
+
+
+Text: "OpenAI was founded in 2015. Sam Altman serves as its CEO."
+Respond ONLY with a valid JSON object. No explanation. [/INST]
+
+{
+  "company": "OpenAI",
+  "founded": "2015",
+  "ceo": "Sam Altman"
+}
+
+Exiting...

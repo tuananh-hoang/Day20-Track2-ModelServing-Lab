@@ -1,0 +1,3 @@
+[INST] Extract the following fields from the text as a JSON object with keys: model, parameters, organization.
+Text: "Llama 3 is a large language model with 8 billion parameters released by Meta AI."
+Respond ONLY with a valid JSON object. No explanation. [/INST]

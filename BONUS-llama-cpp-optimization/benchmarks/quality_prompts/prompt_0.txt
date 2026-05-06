@@ -1,0 +1,3 @@
+[INST] Extract the following fields from the text as a JSON object with keys: name, age, city.
+Text: "Alice is 28 years old and lives in Paris."
+Respond ONLY with a valid JSON object. No explanation. [/INST]

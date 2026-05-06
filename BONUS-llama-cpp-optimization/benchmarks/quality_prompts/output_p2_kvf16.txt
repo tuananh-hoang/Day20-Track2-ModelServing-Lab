@@ -1,0 +1,20 @@
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes, VRAM: 6143 MiB
+
+
+
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+
+
+
+Text: "The annual AI conference will be held on March 15, 2025 in San Francisco."
+Respond ONLY with a valid JSON object. No explanation. [/INST]
+
+{
+  "event": "The annual AI conference",
+  "date": "March 15, 2025",
+  "location": "San Francisco"
+}
+
+Exiting...

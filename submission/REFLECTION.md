@@ -116,19 +116,37 @@ The curve also explains why "more offload" is not always linearly better. Once e
 
 ---
 
-## 6. Dieu ngac nhien nhat
+## 6. Bonus challenge C2 — KV-cache quantization
+
+I also attempted challenge C2 from `BONUS-llama-cpp-optimization/CHALLENGES.md`: quantizing the KV cache and measuring both speed and output quality. This is a small-scale version of the "FP8 KV cache" idea discussed in the lecture deck, but evaluated with local `llama.cpp` on my own laptop.
+
+**Setup:** I used `mistral-7b-instruct-v0.1.Q4_K_M.gguf` with FlashAttention enabled and compared three KV-cache formats: `f16`, `q8_0`, and `q4_0`. The speed benchmark was written to `BONUS-llama-cpp-optimization/benchmarks/bonus-kv-cache-quant.md`, and the output-quality check was written to `BONUS-llama-cpp-optimization/benchmarks/bonus-kv-cache-quality.md`.
+
+| KV cache type | Prefill (t/s) | Decode (t/s) | Quality pass rate |
+|---|--:|--:|--:|
+| f16 | 685.20 | 13.37 | 7 / 7 |
+| q8_0 | 642.22 | 12.82 | 7 / 7 |
+| q4_0 | 628.39 | 12.06 | 7 / 7 |
+
+**What changed:** Relative to `f16`, `q8_0` reduced decode throughput slightly from `13.37 tok/s` to `12.82 tok/s`, and `q4_0` reduced it further to `12.06 tok/s`. On this short JSON-extraction workload, the quantized KV cache variants did not improve speed. The quality result was also stable: all three configurations passed all `7/7` structured prompts, so I did not observe a measurable quality drop on this small eval set.
+
+**What this tells me:** On my machine and prompt set, KV-cache quantization was not the dominant optimization lever. The big win came from CUDA offload, while KV-cache quantization mostly traded a small amount of compute efficiency for a smaller cache representation without changing task accuracy on short contexts. That is still a useful result: not every "advanced" optimization produces an immediate end-to-end gain, and some knobs matter only when the context is longer or memory pressure is tighter. If I extended this experiment, I would increase context length to `8192` and use longer extraction prompts to see whether `q4_0` starts to show degradation that does not appear in this 7-prompt micro-benchmark.
+
+---
+
+## 7. Dieu ngac nhien nhat
 
 The most surprising result was that 50 users did not produce much more throughput than 10 users. It mostly increased queueing and tail latency. This made the deck's warning about goodput at SLO feel very concrete: after saturation, "more concurrent users" is not the same thing as a better serving system.
 
 ---
 
-## 7. Self-graded checklist
+## 8. Self-graded checklist
 
 - [x] `hardware.json` da commit
 - [x] `models/active.json` da commit
 - [x] `benchmarks/01-quickstart-results.md` da commit
 - [x] `benchmarks/02-server-metrics.csv` da commit
-- [x] `benchmarks/bonus-*.md` da commit (`benchmarks/bonus-gpu-offload-sweep.md`)
+- [x] `benchmarks/bonus-*.md` da commit (`benchmarks/bonus-gpu-offload-sweep.md`, `BONUS-llama-cpp-optimization/benchmarks/bonus-kv-cache-quant.md`, `BONUS-llama-cpp-optimization/benchmarks/bonus-kv-cache-quality.md`)
 - [x] It nhat 6 screenshots trong `submission/screenshots/` (can chup va them vao folder nay)
 - [x] `make verify` exit 0 (can chay lai sau khi them screenshots)
 - [x] Repo tren GitHub o che do public

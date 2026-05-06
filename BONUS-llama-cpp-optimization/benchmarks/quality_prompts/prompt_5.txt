@@ -1,0 +1,3 @@
+[INST] Extract the following fields from the text as a JSON object with keys: drug, dosage, frequency.
+Text: "The patient was prescribed Metformin 500mg to be taken twice daily."
+Respond ONLY with a valid JSON object. No explanation. [/INST]

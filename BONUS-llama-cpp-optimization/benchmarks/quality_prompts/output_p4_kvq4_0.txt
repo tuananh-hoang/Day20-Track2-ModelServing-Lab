@@ -1,0 +1,20 @@
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes, VRAM: 6143 MiB
+
+
+
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+
+
+
+Text: "Attention is All You Need was authored by Vaswani et al. and published in 2017."
+Respond ONLY with a valid JSON object. No explanation. [/INST]
+
+{
+  "title": "Attention is All You Need",
+  "author": "Vaswani et al.",
+  "year": "2017"
+}
+
+Exiting...

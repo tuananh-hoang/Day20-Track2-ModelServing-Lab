@@ -1,0 +1,20 @@
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes, VRAM: 6143 MiB
+
+
+
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+
+
+
+Text: "The patient was prescribed Metformin 500mg to be taken twice daily."
+Respond ONLY with a valid JSON object. No explanation. [/INST]
+
+{
+  "drug": "Metformin",
+  "dosage": "500mg",
+  "frequency": "twice daily"
+}
+
+Exiting...

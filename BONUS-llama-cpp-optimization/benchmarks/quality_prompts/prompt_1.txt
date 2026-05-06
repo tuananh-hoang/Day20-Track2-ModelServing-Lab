@@ -1,0 +1,3 @@
+[INST] Extract the following fields from the text as a JSON object with keys: product, price, currency.
+Text: "The MacBook Pro costs 1999 USD in the Apple store."
+Respond ONLY with a valid JSON object. No explanation. [/INST]

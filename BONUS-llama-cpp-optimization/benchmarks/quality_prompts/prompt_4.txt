@@ -1,0 +1,3 @@
+[INST] Extract the following fields from the text as a JSON object with keys: title, author, year.
+Text: "Attention is All You Need was authored by Vaswani et al. and published in 2017."
+Respond ONLY with a valid JSON object. No explanation. [/INST]

@@ -1,0 +1,3 @@
+[INST] Extract the following fields from the text as a JSON object with keys: company, founded, ceo.
+Text: "OpenAI was founded in 2015. Sam Altman serves as its CEO."
+Respond ONLY with a valid JSON object. No explanation. [/INST]
