@@ -16,6 +16,13 @@ Write-Host "    ctx       : $ctx"
 Write-Host "    listening : http://0.0.0.0:8080"
 Write-Host ""
 
+python -c "import uvicorn" 2>$null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERROR: missing server dependency 'uvicorn'." -ForegroundColor Red
+    Write-Host "Run: pip install -r requirements.txt; pip install 'llama-cpp-python[server]'" -ForegroundColor Yellow
+    exit 1
+}
+
 python -m llama_cpp.server `
     --model "$model" `
     --host 0.0.0.0 --port 8080 `

@@ -21,8 +21,8 @@ from pathlib import Path
 LLAMA_BENCH = Path("BONUS-llama-cpp-optimization/llama.cpp/build/bin/llama-bench")
 LLAMA_BENCH_EXE = LLAMA_BENCH.with_suffix(".exe")
 
-# llama-bench prints a markdown-ish table; this regex grabs the tg128 (decode) row.
-TG_RE = re.compile(r"\|\s*tg128\s*\|\s*([0-9.]+)\s*±")
+# llama-bench prints a markdown-ish table; decode tests are named tg64, tg128, etc.
+TG_RE = re.compile(r"\|\s*tg\d+\s*\|\s*([0-9.]+)\s*±")
 
 
 def find_bench() -> Path:
@@ -87,7 +87,7 @@ def main() -> int:
     for t in grid:
         tps = run_one(bench, model, t, n_gpu)
         rows.append({"threads": t, "tok_s": tps})
-        print(f"   t={t:3d}  tg128={tps:6.1f} tok/s")
+        print(f"   t={t:3d}  decode={tps:6.1f} tok/s")
 
     out_dir = Path("benchmarks")
     out_dir.mkdir(exist_ok=True)
@@ -95,7 +95,7 @@ def main() -> int:
     best = max(rows, key=lambda r: r["tok_s"]) if rows else {"threads": 0, "tok_s": 0}
     md = "# Bonus — Thread sweep\n\n"
     md += f"Model: `{Path(model).name}`  ·  GPU layers: `{n_gpu}`\n\n"
-    md += "| threads | tg128 (tok/s) |\n|---:|---:|\n"
+    md += "| threads | decode (tok/s) |\n|---:|---:|\n"
     md += "\n".join(f"| {r['threads']} | {r['tok_s']:.1f} |" for r in rows)
     md += f"\n\n**Best**: `-t {best['threads']}` at {best['tok_s']:.1f} tok/s.\n\n"
     md += (

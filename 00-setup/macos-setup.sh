@@ -43,10 +43,10 @@ pip install -r requirements.txt
 ARCH="$(uname -m)"
 if [[ "$ARCH" == "arm64" ]]; then
   echo "==> Building llama-cpp-python with Metal (Apple Silicon)"
-  CMAKE_ARGS="-DGGML_METAL=on" pip install --upgrade --force-reinstall --no-cache-dir llama-cpp-python
+  CMAKE_ARGS="-DGGML_METAL=on" pip install --upgrade --force-reinstall --no-cache-dir 'llama-cpp-python[server]'
 else
   echo "==> Installing prebuilt llama-cpp-python (Intel Mac, CPU only)"
-  pip install --upgrade llama-cpp-python
+  pip install --upgrade 'llama-cpp-python[server]'
 fi
 
 # 6. Probe + download model

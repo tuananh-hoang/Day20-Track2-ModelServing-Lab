@@ -20,6 +20,12 @@ echo "    ctx       : $CTX"
 echo "    listening : http://0.0.0.0:8080"
 echo
 
+if ! python -c 'import uvicorn' >/dev/null 2>&1; then
+    echo "ERROR: missing server dependency 'uvicorn'." >&2
+    echo "Run: pip install -r requirements.txt && pip install 'llama-cpp-python[server]'" >&2
+    exit 1
+fi
+
 exec python -m llama_cpp.server \
     --model "$MODEL" \
     --host 0.0.0.0 --port 8080 \

@@ -14,6 +14,7 @@ import re
 import sys
 import time
 from pathlib import Path
+from typing import Callable
 
 import httpx
 
@@ -22,21 +23,48 @@ INTERESTING = {
     "llamacpp:n_busy_slots_per_decode",
     "llamacpp:tokens_predicted_total",
     "llamacpp:prompt_tokens_total",
-    "llamacpp:kv_cache_usage_ratio",
-    "llamacpp:kv_cache_tokens",
     "llamacpp:requests_processing",
     "llamacpp:requests_deferred",
 }
 
+KV_RATIO_CANDIDATES = [
+    "llamacpp:kv_cache_usage_ratio",
+    "llamacpp:kv_cache_ratio",
+    "llamacpp:cache_usage_ratio",
+    "llamacpp:slot_kv_cache_usage_ratio",
+]
+
+KV_TOKEN_CANDIDATES = [
+    "llamacpp:kv_cache_tokens",
+    "llamacpp:kv_tokens",
+    "llamacpp:cache_tokens",
+    "llamacpp:slot_kv_cache_tokens",
+]
+
 LINE = re.compile(r"^([a-z_:]+)(?:\{[^}]*\})?\s+([0-9eE.+-]+)$")
 
 
-def scrape(url: str) -> dict[str, float]:
-    out: dict[str, float] = {}
+def pick_metric(
+    metrics: dict[str, float],
+    candidates: list[str],
+    predicate: Callable[[str], bool] | None = None,
+) -> tuple[str | None, float | None]:
+    for name in candidates:
+        if name in metrics:
+            return name, metrics[name]
+    if predicate is not None:
+        for name, value in metrics.items():
+            if predicate(name):
+                return name, value
+    return None, None
+
+
+def scrape(url: str) -> dict[str, float | str]:
+    parsed: dict[str, float] = {}
     try:
         text = httpx.get(url, timeout=3.0).text
     except httpx.HTTPError:
-        return out
+        return {}
     for raw in text.splitlines():
         if raw.startswith("#"):
             continue
@@ -44,11 +72,33 @@ def scrape(url: str) -> dict[str, float]:
         if not m:
             continue
         name, val = m.group(1), m.group(2)
-        if name in INTERESTING:
-            try:
-                out[name] = float(val)
-            except ValueError:
-                pass
+        try:
+            parsed[name] = float(val)
+        except ValueError:
+            pass
+
+    out: dict[str, float | str] = {
+        name: parsed[name] for name in INTERESTING if name in parsed
+    }
+
+    kv_ratio_name, kv_ratio_value = pick_metric(
+        parsed,
+        KV_RATIO_CANDIDATES,
+        predicate=lambda metric: "llamacpp:" in metric and "kv" in metric and "ratio" in metric,
+    )
+    kv_tokens_name, kv_tokens_value = pick_metric(
+        parsed,
+        KV_TOKEN_CANDIDATES,
+        predicate=lambda metric: "llamacpp:" in metric and "kv" in metric and "token" in metric,
+    )
+
+    if kv_ratio_name is not None and kv_ratio_value is not None:
+        out["kv_ratio"] = kv_ratio_value
+        out["kv_ratio_metric"] = kv_ratio_name
+    if kv_tokens_name is not None and kv_tokens_value is not None:
+        out["kv_tokens"] = kv_tokens_value
+        out["kv_tokens_metric"] = kv_tokens_name
+
     return out
 
 
@@ -64,20 +114,29 @@ def main() -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     deadline = time.time() + args.duration
-    rows: list[dict] = []
+    rows: list[dict[str, float | str]] = []
+    warned_missing_kv = False
     print(f"==> Recording {args.url} for {args.duration}s, every {args.interval}s")
     while time.time() < deadline:
         sample = scrape(args.url)
         if sample:
             sample["t"] = round(time.time(), 1)
             rows.append(sample)
+            kv_display = (
+                f"{sample['kv_ratio']:.2f}"
+                if isinstance(sample.get("kv_ratio"), float)
+                else "n/a"
+            )
             print(
                 f"   t={sample['t']:.0f}  "
                 f"reqs_proc={sample.get('llamacpp:requests_processing', 0):.0f}  "
                 f"deferred={sample.get('llamacpp:requests_deferred', 0):.0f}  "
-                f"kv_ratio={sample.get('llamacpp:kv_cache_usage_ratio', 0):.2f}  "
+                f"kv_ratio={kv_display}  "
                 f"tok_pred={sample.get('llamacpp:tokens_predicted_total', 0):.0f}"
             )
+            if not warned_missing_kv and "kv_ratio" not in sample:
+                print("   note: this llama-server build does not expose a KV-cache ratio metric under /metrics")
+                warned_missing_kv = True
         else:
             print("   (scrape failed — is llama-server running with --metrics?)")
         time.sleep(args.interval)

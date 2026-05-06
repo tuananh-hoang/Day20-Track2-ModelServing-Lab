@@ -34,15 +34,20 @@ python -m pip install --upgrade pip wheel | Out-Null
 Write-Host "==> Installing Python deps from requirements.txt"
 pip install -r requirements.txt
 
-# 3. llama-cpp-python — prebuilt CPU wheel works on Windows out of the box.
-#    For CUDA, set $env:LLAMA_CUDA=1 and ensure CUDA Toolkit + cmake are installed.
-if ($env:LLAMA_CUDA -eq '1') {
+# 3. llama-cpp-python — prefer CUDA when NVIDIA tooling is visible.
+#    You can still force paths via $env:LLAMA_CUDA / $env:LLAMA_VULKAN.
+$useCuda = $env:LLAMA_CUDA -eq '1' -or ((Get-Command nvidia-smi -ErrorAction SilentlyContinue) -ne $null)
+if ($env:LLAMA_VULKAN -eq '1') {
+    Write-Host "==> Building llama-cpp-python with Vulkan (requires Vulkan SDK + cmake)"
+    $env:CMAKE_ARGS = '-DGGML_VULKAN=on'
+    pip install --upgrade --force-reinstall --no-cache-dir 'llama-cpp-python[server]'
+} elseif ($useCuda) {
     Write-Host "==> Building llama-cpp-python with CUDA (requires CUDA Toolkit + cmake)"
     $env:CMAKE_ARGS = '-DGGML_CUDA=on'
-    pip install --upgrade --force-reinstall --no-cache-dir llama-cpp-python
+    pip install --upgrade --force-reinstall --no-cache-dir 'llama-cpp-python[server]'
 } else {
     Write-Host "==> Installing prebuilt llama-cpp-python (CPU)"
-    pip install --upgrade llama-cpp-python
+    pip install --upgrade 'llama-cpp-python[server]'
 }
 
 # 4. Probe + download model
